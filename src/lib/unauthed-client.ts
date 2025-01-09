@@ -43,6 +43,6 @@ export async function getUserBookmarks(handleOrDid: string, passphrase: string) 
     }
 
     return outBookmarks.sort((a, b) => {
-        return a.bookmarkedOn.getTime() - b.bookmarkedOn.getTime();
+        return b.bookmarkedOn.getTime() - a.bookmarkedOn.getTime();
     });
 }
