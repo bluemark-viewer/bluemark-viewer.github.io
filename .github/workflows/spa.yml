@@ -58,6 +58,8 @@ jobs:
       - name: Build SPA
         run: |
           pnpm run build
+        env:
+          BASE_PATH: '/${{ github.event.repository.name }}'
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
