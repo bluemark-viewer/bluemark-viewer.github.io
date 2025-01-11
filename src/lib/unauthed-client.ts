@@ -4,12 +4,29 @@ import { KittyAgent } from 'kitty-agent';
 import { base64ToBytes, decryptData, deriveKey } from './crypto';
 import { parse as parseTid } from '@atcute/tid';
 
-export interface Bookmark {
+interface Bookmark {
     bookmarkedOn: Date;
     bookmarkRkey: string;
 
     repo: string;
     rkey: string;
+}
+
+export interface DedupedBookmark {
+    bookmarkedOn: Date;
+    bookmarkRkeys: string[];
+
+    repo: string;
+    rkey: string;
+}
+
+function groupBy<T, U extends string | symbol | number>(xs: T[], key: (element: T) => U): Record<U, T[]> {
+    const obj: Partial<Record<U, T[]>> = {};
+    for (const el of xs) {
+        const k = key(el);
+        (obj[k] ??= []).push(el);
+    }
+    return obj as Record<U, T[]>;
 }
 
 export async function getUserBookmarks(handleOrDid: string, passphrase: string) {
@@ -31,7 +48,7 @@ export async function getUserBookmarks(handleOrDid: string, passphrase: string) 
 
     const outBookmarks: Bookmark[] = [];
 
-    for (const { value: cryptBookmark, uri: { rkey }} of bookmarks) {
+    for (const { value: cryptBookmark, uri: { rkey } } of bookmarks) {
         const key = await getKey(cryptBookmark.salt);
         const decryptedString = await decryptData(cryptBookmark, key);
         const bookmark = {
@@ -41,8 +58,19 @@ export async function getUserBookmarks(handleOrDid: string, passphrase: string) 
         } as Bookmark;
         outBookmarks.push(bookmark);
     }
-
-    return outBookmarks.sort((a, b) => {
+    // sort by recent first
+    outBookmarks.sort((a, b) => {
         return b.bookmarkedOn.getTime() - a.bookmarkedOn.getTime();
     });
+
+    // deduplicate
+    const groups = groupBy(outBookmarks, e => `${e.repo}:${e.rkey}`);
+    const dedupedBookmarks = Object.values(groups).map(group => ({
+        repo: group[0].repo,
+        rkey: group[0].rkey,
+        bookmarkedOn: group[0].bookmarkedOn,
+        bookmarkRkeys: group.map(bookmark => bookmark.bookmarkRkey),
+    } satisfies DedupedBookmark))
+
+    return dedupedBookmarks;
 }
