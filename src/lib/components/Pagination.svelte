@@ -1,6 +1,4 @@
 <script lang="ts">
-    import Icon from './Icon.svelte';
-
     // https://svelte.dev/repl/84a8d64a6f1e49feba8f6a491ecc55f5?version=3.35.0
 
     type T = $$Generic;
