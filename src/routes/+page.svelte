@@ -5,6 +5,7 @@
     import '$lib/styles.scss';
     import { authenticateIfNecessary, revokeSessions, savedHandle, user, waitForInitialSession } from '$lib/signed-in-user';
     import { onMount } from 'svelte';
+    import Pagination from '$lib/components/Pagination.svelte';
 
     let loginHandle = $state($savedHandle ?? '');
     let passphrase = $state('');
@@ -31,6 +32,21 @@
 
     function signOut() {
         revokeSessions();
+    }
+
+    async function deleteBookmark(bookmark: DedupedBookmark, event: Event) {
+        event.preventDefault();
+        
+        if (!$user) {
+            await waitForInitialSession();
+        }
+
+        if (!$user) {
+            return;
+        }
+
+        await $user.client.deleteBookmarks(bookmark.bookmarkRkeys);
+        await loadUser();
     }
 </script>
 
@@ -63,16 +79,22 @@
         {/await}
     </div>
 
-    {#if $user}
-        {#each bookmarks as bookmark}
-        <p></p>
+    {#if $user && bookmarks.length}
+        <Pagination rows={bookmarks} perPage={30} let:row totalShownPages={4}>
+            {@const bookmark = row}
+    
+            Saved on {bookmark.bookmarkedOn.toLocaleString(undefined, {})}
 
-        <div class="pico">
-            Saved on {bookmark.bookmarkedOn}
-        </div>
+            <a href="#deletePaste" role="button" class="delete-button" onclick={event => deleteBookmark(bookmark, event)}>
+                🗑️
+            </a>
+    
+            {#key [bookmark.repo, bookmark.rkey]}
+            <bluesky-post src="at://{bookmark.repo}/app.bsky.feed.post/{bookmark.rkey}" allow-unauthenticated="true"></bluesky-post>
+            {/key}
 
-        <bluesky-post src="at://{bookmark.repo}/app.bsky.feed.post/{bookmark.rkey}" allow-unauthenticated="true"></bluesky-post>
-        {/each}
+            <hr>
+        </Pagination>
     {/if}
 </div>
 {/if}
@@ -86,5 +108,9 @@
     }
     .signout {
         padding: 0.2rem 0.7rem !important;
+    }
+    .delete-button {
+        float: right;
+        text-decoration: none;
     }
 </style>

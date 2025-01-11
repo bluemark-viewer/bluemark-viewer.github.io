@@ -17,4 +17,14 @@ export class BluemarkViewerClient {
         return this.loginState;
     }
 
+    async deleteBookmarks(bookmarkRkeys: string[]) {
+        await this.agent.batchWrite({
+            repo: this.user.did,
+            writes: bookmarkRkeys.map(rkey => ({
+                $type: 'com.atproto.repo.applyWrites#delete',
+                collection: 'io.github.uwx.bluemark.encryptedBookmark',
+                rkey
+            }))
+        })
+    }
 }
