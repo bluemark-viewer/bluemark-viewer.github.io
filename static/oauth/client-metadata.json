@@ -1,8 +1,8 @@
 {
-    "client_id": "https://uwx.github.io/bluemark-viewer/oauth/client-metadata.json",
+    "client_id": "https://bluemark-viewer.github.io/oauth/client-metadata.json",
     "client_name": "atpaste",
-    "client_uri": "https://uwx.github.io/bluemark-viewer/",
-    "redirect_uris": ["https://uwx.github.io/bluemark-viewer/oauth/redirect"],
+    "client_uri": "https://bluemark-viewer.github.io/",
+    "redirect_uris": ["https://bluemark-viewer.github.io/oauth/redirect"],
     "scope": "atproto transition:generic",
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
