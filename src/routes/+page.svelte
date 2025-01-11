@@ -108,6 +108,7 @@
     }
     .signout {
         padding: 0.2rem 0.7rem !important;
+        float: right;
     }
     .delete-button {
         float: right;
