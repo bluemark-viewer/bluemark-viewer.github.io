@@ -111,6 +111,6 @@
     }
     .delete-button {
         float: right;
-        text-decoration: none;
+        text-decoration: none !important;
     }
 </style>
