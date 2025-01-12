@@ -31,7 +31,7 @@ function groupBy<T, U extends string | symbol | number>(xs: T[], key: (element: 
 
 export async function getUserBookmarks(handleOrDid: string, passphrase: string) {
     const agent = await KittyAgent.getOrCreatePds(handleOrDid);
-    const { records: bookmarks } = await agent.list({
+    const { records: bookmarks } = await agent.paginatedList({
         collection: 'io.github.uwx.bluemark.encryptedBookmark',
         repo: handleOrDid,
     });
